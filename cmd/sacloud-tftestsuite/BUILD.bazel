@@ -1,0 +1,22 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["sacloud-tftestsuite.go"],
+    importpath = "github.com/lifememoryteam/sacloud-tftestsuite/cmd/sacloud-tftestsuite",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//vendor/github.com/hashicorp/hcl/v2:go_default_library",
+        "//vendor/github.com/hashicorp/hcl/v2/gohcl:go_default_library",
+        "//vendor/github.com/hashicorp/hcl/v2/hclparse:go_default_library",
+        "//vendor/github.com/sacloud/libsacloud/v2/sacloud:go_default_library",
+        "//vendor/github.com/sacloud/libsacloud/v2/sacloud/search:go_default_library",
+        "//vendor/golang.org/x/xerrors:go_default_library",
+    ],
+)
+
+go_binary(
+    name = "sacloud-tftestsuite",
+    embed = [":go_default_library"],
+    visibility = ["//visibility:public"],
+)
