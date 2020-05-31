@@ -1,0 +1,6 @@
+load("//cmd/sacloud-tftestsuite/rules:def.bzl", "sacloud_tf_config_test")
+
+sacloud_tf_config_test(
+    name = "test",
+    srcs = glob(["*.tf"]),
+)

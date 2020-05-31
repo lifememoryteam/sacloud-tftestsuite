@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
@@ -40,38 +41,49 @@ func main() {
 	}
 }
 
-func testTF(tfPath string) error {
-	b, err := ioutil.ReadFile(tfPath)
-	if err != nil {
-		return xerrors.Errorf(": %v", err)
-	}
-	parser := hclparse.NewParser()
-	file, diagnostics := parser.ParseHCL(b, "test")
+func testTF(tfPath, commitment string) error {
+	paths := strings.Split(tfPath, ",")
+	for _, path := range paths {
+		fmt.Fprintf(os.Stdout, "testing: %s\n", path)
+		b, err := ioutil.ReadFile(path)
+		if err != nil {
+			return xerrors.Errorf(": %v", err)
+		}
+		parser := hclparse.NewParser()
+		file, diagnostics := parser.ParseHCL(b, "test")
 
-	if diagnostics.HasErrors() {
-		panic(diagnostics)
-	}
-
-	var example Resource
-	diags := gohcl.DecodeBody(file.Body, nil, &example)
-	if diags.HasErrors() {
-		panic(diags)
-	}
-	for _, server := range example.Resource {
-		if server.ResourceType != "sakuracloud_server" {
+		if file == nil {
+			fmt.Fprintf(os.Stderr, "file is corrupted in %s\n", path)
 			continue
 		}
-		if server.Core == 0 {
-			server.Core = 1
+
+		if diagnostics.HasErrors() {
+			fmt.Fprintf(os.Stderr, "hcl diag error in %s\n", path)
+			continue
 		}
-		if server.Memory == 0 {
-			server.Memory = 1
+
+		var resource Resource
+		diags := gohcl.DecodeBody(file.Body, nil, &resource)
+		if diags.HasErrors() {
+			fmt.Fprintf(os.Stderr, "hcl decode error in %s\n", path)
+			continue
 		}
-		if server.Commitment == "" {
-			server.Commitment = "standard"
-		}
-		if !contains(ServerPlan[server.Core], server.Memory) {
-			Results = append(Results, fmt.Sprintf("%s: not serviced in %dCore/%dGB\n", server.ResourceName, server.Core, server.Memory))
+		for _, server := range resource.Resource {
+			if server.ResourceType != "sakuracloud_server" {
+				continue
+			}
+			if server.Core == 0 {
+				server.Core = 1
+			}
+			if server.Memory == 0 {
+				server.Memory = 1
+			}
+			if server.Commitment == "" {
+				server.Commitment = commitment
+			}
+			if !contains(ServerPlan[server.Core], server.Memory) {
+				Results = append(Results, fmt.Sprintf("%s: not serviced in %dCore/%dGB\n", server.ResourceName, server.Core, server.Memory))
+			}
 		}
 	}
 
@@ -92,13 +104,17 @@ func sacloudTFTestSuite(args []string) error {
 	zone := os.Getenv("SAKURACLOUD_ZONE")
 	token := os.Getenv("SAKURACLOUD_ACCESS_TOKEN")
 	secret := os.Getenv("SAKURACLOUD_ACCESS_TOKEN_SECRET")
+	commitment := os.Getenv("SAKURACLOUD_SERVER_COMMITMENT")
+	if commitment == "" {
+		commitment = "standard"
+	}
 
 	caller := sacloud.NewClient(token, secret)
 	serverPlanOp := sacloud.NewServerPlanOp(caller)
 	condition := &sacloud.FindCondition{
 		Filter: search.Filter{
 			search.Key("Availability"): search.AndEqual("available"),
-			search.Key("Commitment"):   search.AndEqual("standard"),
+			search.Key("Commitment"):   search.AndEqual(commitment),
 		},
 	}
 	searched, err := serverPlanOp.Find(context.Background(), zone, condition)
@@ -109,7 +125,7 @@ func sacloudTFTestSuite(args []string) error {
 		ServerPlan[v.CPU] = append(ServerPlan[v.CPU], v.MemoryMB/1024)
 	}
 
-	return testTF(args[1])
+	return testTF(args[1], commitment)
 }
 
 func contains(s []int, e int) bool {
