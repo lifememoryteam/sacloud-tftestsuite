@@ -1,0 +1,9 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["mutexkv.go"],
+    importmap = "github.com/lifememoryteam/sacloud-tftestsuite/vendor/github.com/sacloud/libsacloud/v2/pkg/mutexkv",
+    importpath = "github.com/sacloud/libsacloud/v2/pkg/mutexkv",
+    visibility = ["//visibility:public"],
+)

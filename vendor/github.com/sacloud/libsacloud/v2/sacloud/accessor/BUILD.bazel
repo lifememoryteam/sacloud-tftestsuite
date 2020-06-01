@@ -1,0 +1,35 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "assigned_memory_mb.go",
+        "availability.go",
+        "class.go",
+        "created_at.go",
+        "disk_migratable.go",
+        "disk_plan.go",
+        "filter.go",
+        "id.go",
+        "instance.go",
+        "instance_status.go",
+        "memory_mb.go",
+        "migrated_mb.go",
+        "modified_at.go",
+        "name.go",
+        "scope.go",
+        "size_mb.go",
+        "switch_id.go",
+        "switch_subnet.go",
+        "tags.go",
+    ],
+    importmap = "github.com/lifememoryteam/sacloud-tftestsuite/vendor/github.com/sacloud/libsacloud/v2/sacloud/accessor",
+    importpath = "github.com/sacloud/libsacloud/v2/sacloud/accessor",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/github.com/sacloud/libsacloud/v2/pkg/cidr:go_default_library",
+        "//vendor/github.com/sacloud/libsacloud/v2/pkg/size:go_default_library",
+        "//vendor/github.com/sacloud/libsacloud/v2/sacloud/search:go_default_library",
+        "//vendor/github.com/sacloud/libsacloud/v2/sacloud/types:go_default_library",
+    ],
+)

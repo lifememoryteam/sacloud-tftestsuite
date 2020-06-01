@@ -1,0 +1,15 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "equal_expression.go",
+        "filter.go",
+        "key.go",
+        "operator.go",
+        "sort_key.go",
+    ],
+    importmap = "github.com/lifememoryteam/sacloud-tftestsuite/vendor/github.com/sacloud/libsacloud/v2/sacloud/search",
+    importpath = "github.com/sacloud/libsacloud/v2/sacloud/search",
+    visibility = ["//visibility:public"],
+)

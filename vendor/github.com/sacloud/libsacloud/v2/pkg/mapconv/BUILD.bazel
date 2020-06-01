@@ -1,0 +1,16 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "map.go",
+        "mapconv.go",
+    ],
+    importmap = "github.com/lifememoryteam/sacloud-tftestsuite/vendor/github.com/sacloud/libsacloud/v2/pkg/mapconv",
+    importpath = "github.com/sacloud/libsacloud/v2/pkg/mapconv",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/github.com/fatih/structs:go_default_library",
+        "//vendor/github.com/mitchellh/mapstructure:go_default_library",
+    ],
+)

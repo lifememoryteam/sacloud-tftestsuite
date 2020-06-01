@@ -1,0 +1,22 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "decode.go",
+        "doc.go",
+        "encode.go",
+        "schema.go",
+        "types.go",
+    ],
+    importmap = "github.com/lifememoryteam/sacloud-tftestsuite/vendor/github.com/hashicorp/hcl/v2/gohcl",
+    importpath = "github.com/hashicorp/hcl/v2/gohcl",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/github.com/hashicorp/hcl/v2:go_default_library",
+        "//vendor/github.com/hashicorp/hcl/v2/hclwrite:go_default_library",
+        "//vendor/github.com/zclconf/go-cty/cty:go_default_library",
+        "//vendor/github.com/zclconf/go-cty/cty/convert:go_default_library",
+        "//vendor/github.com/zclconf/go-cty/cty/gocty:go_default_library",
+    ],
+)
